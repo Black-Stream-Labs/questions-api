@@ -15,8 +15,8 @@ use poem_openapi::{
 use question_generator::{
     Question,
     GeneratorParameters,
-    generator::maths::{ArithmeticOperation, MathsGeneratorParameters},
-    generator::maths::generate as generate_maths
+    Curriculum,
+    generator::arithmetic::generate as generate_maths
 };
 
 #[derive(EnumString, Deserialize)]
@@ -28,9 +28,7 @@ struct CombinedQueryParams {
     subject: Option<Subject>,
     count: Option<usize>,
     answer_count: Option<usize>,
-
-    // MathsGeneratorParameters
-    operations: String
+    area: Option<String>
 }
 
 // FIXME - we should have the questions generator in a separate repository
@@ -59,11 +57,14 @@ impl QuestionsApi {
         Json(generate_maths(
             GeneratorParameters {
                 count: params.count.unwrap_or(3),
-                answer_count: params.answer_count.unwrap_or(3)
-            },
-            MathsGeneratorParameters {
-                operations:
-                    params.operations.split(',').collect::<Vec<_>>().iter().map(|o| ArithmeticOperation::from_str(o).unwrap()).collect()
+                answer_count: params.answer_count.unwrap_or(3),
+                curriculum: Curriculum {
+                    subject: "Maths".to_string(),
+                    area: params.area.clone(),
+                    stage: None,
+                    interest_level: None,
+                    difficulty: 1
+                }
             }
         ))
     }
